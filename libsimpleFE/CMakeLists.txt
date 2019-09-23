@@ -22,12 +22,12 @@ if (WIN32)
   target_link_libraries(simpleFE PUBLIC ${PROJECT_SOURCE_DIR}/../contrib/pthread-win32/bin/x64_MSVC2015.Release/pthread_lib.lib)
   add_compile_definitions(HAVE_STRUCT_TIMESPEC=1 PTW32_STATIC_LIB=1)
 elseif(APPLE)
-  target_link_libraries(simpleFE PUBLIC ${LIBUSB_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+  target_link_libraries(simpleFE PUBLIC "-framework CoreFoundation -framework IOKit")
+  target_link_libraries(simpleFE PUBLIC ${LIBUSB_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})  
 else()
-find_package(Udev)
-target_link_libraries(simpleFE PUBLIC ${LIBUSB_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(simpleFE PUBLIC ${UDEV_LIBRARIES})
-
+  find_package(Udev)  
+  target_link_libraries(simpleFE PUBLIC ${LIBUSB_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+  target_link_libraries(simpleFE PUBLIC ${UDEV_LIBRARIES})
 endif()
 
 
