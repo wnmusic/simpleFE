@@ -39,7 +39,7 @@ namespace gr {
           static int tx_callback(unsigned char* buffer, int length, void* data);
           static int fill_tx_buffer(void* dst, void* src, int src_len);
           static int calc_read_len(int dst_len);
-          ring_buffer<std::complex<float>> m_ringbuf;
+          ring_buffer<std::complex<float> > m_ringbuf;
 
       public:
           sink_c_impl(unsigned sample_rate);

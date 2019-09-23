@@ -25,10 +25,10 @@ include(GrPlatform) #define LIB_SUFFIX
 
 
 include_directories(${Boost_INCLUDE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/libsimpleFE/include)
+include_directories(${CMAKE_SOURCE_DIR}/../libsimpleFE)
 
 link_directories(${Boost_LIBRARY_DIRS})
-set(simplefe_dir ${CMAKE_SOURCE_DIR}/libsimpleFE/lib)
+set(simplefe_dir ${CMAKE_SOURCE_DIR}/../libsimpleFE/build)
 
 list(APPEND simplefe_sources
     sink_c_impl.cc
