@@ -38,6 +38,9 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <errno.h>
 #include "simpleFE.h"
 
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
 
 
 static int exitRequested = 0;
@@ -87,7 +90,7 @@ static int rx_callback(unsigned char* buffer, int length, void* userdata)
     
     if (rx_pkts % 8000 == 0){
         rx_cnt++;
-        printf("adc throughput: %d\n", rx_bytes*8000/rx_pkts);
+        printf("adc throughput: %lld\n", rx_bytes*8000/rx_pkts);
         if (rx_cnt == 5){
             rx_bytes = 0;
             rx_pkts = 0;

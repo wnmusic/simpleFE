@@ -50,6 +50,9 @@ void usleep(DWORD waitTime) {
 		QueryPerformanceCounter((LARGE_INTEGER*)&now);
 	} while ((now.QuadPart - start.QuadPart) / (float)(perfCnt.QuadPart) * 1000 * 1000 < waitTime);
 }
+
+#else
+#include <unistd.h>
 #endif
 
 

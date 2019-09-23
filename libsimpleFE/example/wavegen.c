@@ -40,6 +40,9 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <errno.h>
 #include "simpleFE.h"
 #include "chip_select.h"
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
 
 
 static int exitRequested = 0;

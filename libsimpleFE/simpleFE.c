@@ -49,6 +49,12 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NUM_TRANSFERS            16
 #endif
 
+
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
+
+
 static const unsigned num_pkts_per_sec = 8000; /* 8 packets per 1ms */
 static const unsigned num_pkts_per_125ms = 1000;
 
