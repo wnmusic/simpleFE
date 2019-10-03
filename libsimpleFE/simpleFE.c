@@ -1,5 +1,4 @@
 /*
-
 Copyright (c) 2019, Ning Wang <nwang.cooper@gmail.com> All rights reserved.
 
 
@@ -37,8 +36,9 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "usb_access.h"
 #include "simpleFE.h"
 #include "chip_select.h"
+#include "ezusb.h"
 #include <pthread.h>
-
+#include "libusb.h"
 
 #define FPGA_CLK   30000000
 #ifdef __linux__
@@ -219,7 +219,7 @@ int ensure_stable_clock_reading(sfe *h, unsigned *pclk)
         if (m_clock > FPGA_CLK + 1000000 || m_clock  < FPGA_CLK - 1000000){
             fprintf(stderr, "Board is not ready(clk=%d), retry in 1 second\n", m_clock);
 #ifdef _MSC_VER
-            Sleep(1);
+            _sleep(1000);
 #else            
             sleep(1);
 #endif            
@@ -798,18 +798,24 @@ void sfe_stop_rx(sfe *h)
     }
 }
 
-
-
+    
 sfe* sfe_init()
 {
-    unsigned char cfg[2];    
-    sfe *h = calloc(sizeof(sfe), 1);
+    unsigned char cfg[2];
 
+    sfe *h = calloc(sizeof(sfe), 1);
     h->usb = usb_init();
-    if (!h->usb){
+    if (h->usb == NULL){
         free(h);
+        fprintf(stderr, "cannot find known device to load firmware or run program\n");
         return NULL;
     }
+
+    if (get_cdone(h->usb) == -1){
+        free(h);
+        fprintf(stderr, "firmware has not been loaded, load firmware first\n");
+        return NULL;
+    }        
 
     h->packets_per_xfer = NUM_PKTS_PER_XFER;
     h->num_xfers = NUM_TRANSFERS;

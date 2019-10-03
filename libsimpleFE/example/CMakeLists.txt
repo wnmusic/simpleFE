@@ -18,3 +18,7 @@ target_link_libraries(wavegen LINK_PUBLIC simpleFE)
 add_executable(loopback loopback.c)
 target_link_libraries(loopback LINK_PUBLIC simpleFE)
 
+
+add_executable(fw_load fw_load.c)
+target_link_libraries(fw_load LINK_PUBLIC simpleFE)
+

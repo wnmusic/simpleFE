@@ -30,54 +30,50 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#ifndef USB_ACCESS_H_
-#define USB_ACCESS_H_
-
-#include "libusb.h"
-typedef struct
-{
-    libusb_device_handle *dev;
-    unsigned char ep_spi_out;
-    unsigned char ep_spi_in;
-    unsigned char ep_data_out;
-    unsigned char ep_data_in;
-
-    /* ISO handling */
-    unsigned  max_out_packet_size;
-    unsigned  max_in_packet_size;
-    
-}sfe_usb;
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "usb_access.h"
+#include "chip_select.h"
+#include "ezusb.h"
 
 
-sfe_usb *usb_init();
-void usb_close(sfe_usb *h);
-int  usb_xfer_spi(sfe_usb *h, uint8_t *data, int n);
-void set_cs_creset(sfe_usb *h, int cs_b, int creset_b);
-int  get_cdone(sfe_usb *h);
-void set_gpio(sfe_usb *h, int gpio, unsigned val);
-int get_gpio(sfe_usb *h, int gpio);
-unsigned get_clkrate(sfe_usb* h);
-void get_fifo_status(sfe_usb* h, unsigned *adc_level, unsigned *dac_level);
-void get_fpga_status(sfe_usb* h,
-                     unsigned *cdiv,
-                     int* tx_i,
-                     int* tx_q,
-                     int* rx_i,
-                     int* rx_q,
-                     int* sys_en
-                     );
-void set_isopkts(sfe_usb *h, unsigned n);
+#ifdef _MSC_VER
+void usleep(DWORD waitTime) {
+	LARGE_INTEGER perfCnt, start, now;
 
+	QueryPerformanceFrequency(&perfCnt);
+	QueryPerformanceCounter(&start);
 
-#define GPIO_LED    (2)
-#define FPGA_RST    (5)
+	do {
+		QueryPerformanceCounter((LARGE_INTEGER*)&now);
+	} while ((now.QuadPart - start.QuadPart) / (float)(perfCnt.QuadPart) * 1000 * 1000 < waitTime);
+}
 
-
-#define VR_GPIO 0xaa
-#define VR_RATE 0xab
-
-#define MAX_VR_BYTES    4
-#define VR_GPIO_BYTES   1
-#define VR_RATE_CLOCK_BYTES      4
-#define VR_RATE_STATUS_BYTES     2
+#else
+#include <unistd.h>
 #endif
+
+
+int main(int argc, char* argv[])
+{
+    sfe_usb *h = usb_init();
+    int i;
+    unsigned status;
+
+    if (get_cdone(h) != -1){
+        fprintf(stderr, "firmware already loaded\n");
+        return 1;
+    }
+
+    if (argc < 2){
+        fprintf(stderr, "usage: fw_load `path to simplefe.hex'\n");
+        return 2;
+    }
+
+    return ezusb_load_ram(h->dev, argv[1], FX_TYPE_FX2LP, IMG_TYPE_HEX, 0);
+    
+    usb_close(h);
+}

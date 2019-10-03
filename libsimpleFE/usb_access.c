@@ -45,7 +45,7 @@ struct simplefe_usb_device{
 
 static struct simplefe_usb_device known_devices[] =
     {
-     {0x04b4, 0x00F1, "CYStream"}
+     {0x1209, 0xA119, "simpleFE"}
     };
         
 
@@ -56,8 +56,6 @@ sfe_usb *usb_init()
     libusb_device *dev, **devs;
     struct libusb_device_descriptor desc;
     int bfound = 0, i, j;
-    
-    
     
     status = libusb_init(NULL);
     if (status < 0) {
@@ -244,7 +242,7 @@ void set_cs_creset(sfe_usb *h, int cs_b, int creset_b)
 }
 
 
-unsigned get_gpio(sfe_usb *h, int gpio)
+int get_gpio(sfe_usb *h, int gpio)
 {
     int status;
     uint8_t data;

@@ -743,7 +743,7 @@ int main(int argc, char **argv)
 
     fprintf(stderr, "init..\n");
     
-    bb = usb_init(0, 0);
+    bb = usb_init();
     fprintf(stderr, "cdone: %s\n", get_cdone(bb) ? "high" : "low");
 
     flash_release_reset();
