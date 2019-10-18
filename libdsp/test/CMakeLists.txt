@@ -1,0 +1,2 @@
+add_executable(test_blkconv test_blkconv.cxx)
+target_link_libraries(test_blkconv LINK_PUBLIC Libdsp)
