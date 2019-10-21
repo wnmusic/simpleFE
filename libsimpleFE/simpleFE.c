@@ -68,6 +68,7 @@ struct sfe_s{
     /* control status */
     int clk_div;
     unsigned sample_rate;
+    unsigned actual_rate;
 
     int xfer_ctrl; // tx_i, tx_q, rx_i, rx_q
     
@@ -667,6 +668,7 @@ int sfe_tx_start(sfe *h,
         return -1;
     }
     rate =  clk/(h->clk_div*2 + 4);
+    h->actual_rate = rate;
     h->tx_bytes_per_sec = rate * h->num_tx_channels * 10/8;
     if (h->tx_bytes_per_sec > (h->usb->max_out_packet_size * 8 *1000)){
         fprintf(stderr, "Sample rate too high, rate=%d, bytes=%d\n",rate, h->tx_bytes_per_sec);
@@ -862,4 +864,10 @@ void sfe_reset_board(sfe* h)
     // Reset FPGA
     set_gpio(h->usb, FPGA_RST, 0);
     set_gpio(h->usb, FPGA_RST, 1);
+}
+
+
+unsigned get_real_sample_rate(sfe* h)
+{
+    return h->actual_rate;
 }
