@@ -1,3 +1,3 @@
 ACTION=="add", ATTRS{idProduct}=="a119", ATTRS{idVendor}=="1209", RUN+="/usr/local/share/simplefe/fw_load /usr/local/share/simplefe/simpleFE.hex"
 
-ATTRS{idProduct}=="a119", ATTRS{idVendor}=="1209", MODE="0660", GROUP="nzwang"
+ATTRS{idProduct}=="a119", ATTRS{idVendor}=="1209", MODE="0660", GROUP=`groups'
