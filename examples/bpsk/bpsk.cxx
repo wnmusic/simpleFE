@@ -43,7 +43,7 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #define SYMBOL_RATE           (100000)
-#define SAMPLES_PER_SYMBOL    (50)
+#define SAMPLES_PER_SYMBOL    (20)
 #define SAMPLE_RATE           (SAMPLES_PER_SYMBOL *  SYMBOL_RATE)
 #define SCALING_FACTOR        (.85f / 1.35f)
 
@@ -60,6 +60,10 @@ static int blk_conv_fft_size = 2048;
 static float *rrc_prototype = &RRC_TAPS_551[0];
 static int rrc_filter_len = 551;
 static int blk_conv_fft_size = 8192;
+#else
+static float *rrc_prototype = &RC_TAPS_221[0];
+static int rrc_filter_len = 221;
+static int blk_conv_fft_size = 2048;
 #endif
 
 
