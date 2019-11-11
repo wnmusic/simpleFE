@@ -3,8 +3,10 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Top Block
-# Generated: Tue Jul 23 23:28:53 2019
+# Generated: Mon Nov  4 16:44:10 2019
 ##################################################
+
+from distutils.version import StrictVersion
 
 if __name__ == '__main__':
     import ctypes
@@ -16,72 +18,104 @@ if __name__ == '__main__':
         except:
             print "Warning: failed to XInitThreads()"
 
-from gnuradio import analog
+from PyQt5 import Qt, QtCore
+from gnuradio import blocks
+from gnuradio import digital
 from gnuradio import eng_notation
 from gnuradio import gr
-from gnuradio import wxgui
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
-from gnuradio.wxgui import scopesink2
-from grc_gnuradio import wxgui as grc_wxgui
 from optparse import OptionParser
+import numpy
 import simplefe
-import wx
+import sys
+from gnuradio import qtgui
 
 
-class top_block(grc_wxgui.top_block_gui):
+class top_block(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        grc_wxgui.top_block_gui.__init__(self, title="Top Block")
-        _icon_path = "/usr/share/icons/hicolor/32x32/apps/gnuradio-grc.png"
-        self.SetIcon(wx.Icon(_icon_path, wx.BITMAP_TYPE_ANY))
+        gr.top_block.__init__(self, "Top Block")
+        Qt.QWidget.__init__(self)
+        self.setWindowTitle("Top Block")
+        qtgui.util.check_set_qss()
+        try:
+            self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
+        except:
+            pass
+        self.top_scroll_layout = Qt.QVBoxLayout()
+        self.setLayout(self.top_scroll_layout)
+        self.top_scroll = Qt.QScrollArea()
+        self.top_scroll.setFrameStyle(Qt.QFrame.NoFrame)
+        self.top_scroll_layout.addWidget(self.top_scroll)
+        self.top_scroll.setWidgetResizable(True)
+        self.top_widget = Qt.QWidget()
+        self.top_scroll.setWidget(self.top_widget)
+        self.top_layout = Qt.QVBoxLayout(self.top_widget)
+        self.top_grid_layout = Qt.QGridLayout()
+        self.top_layout.addLayout(self.top_grid_layout)
+
+        self.settings = Qt.QSettings("GNU Radio", "top_block")
+        self.restoreGeometry(self.settings.value("geometry", type=QtCore.QByteArray))
+
 
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 3000000
+        self.samp_rate = samp_rate = 1000000
 
         ##################################################
         # Blocks
         ##################################################
-        self.wxgui_scopesink2_0 = scopesink2.scope_sink_c(
-        	self.GetWin(),
-        	title='Scope Plot',
-        	sample_rate=samp_rate,
-        	v_scale=0,
-        	v_offset=0,
-        	t_scale=0,
-        	ac_couple=False,
-        	xy_mode=False,
-        	num_inputs=1,
-        	trig_mode=wxgui.TRIG_MODE_AUTO,
-        	y_axis_label='Counts',
-        )
-        self.Add(self.wxgui_scopesink2_0.win)
-        self.simplefe_source_c_0 = simplefe.source_c(samp_rate)
-        self.simplefe_sink_c_0 = simplefe.sink_c(samp_rate)
-        self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 300000, 0.95, 0)
+        self.simplefe_sink_f_0 = simplefe.sink_f(samp_rate, 0)
+        self.digital_psk_mod_0 = digital.psk.psk_mod(
+          constellation_points=2,
+          mod_code="none",
+          differential=False,
+          samples_per_symbol=10,
+          excess_bw=0.35,
+          verbose=False,
+          log=False,
+          )
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff((0.6, ))
+        self.blocks_complex_to_float_0 = blocks.complex_to_float(1)
+        self.analog_random_source_x_0 = blocks.vector_source_b(map(int, numpy.random.randint(0, 256, 1000)), True)
+
+
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_sig_source_x_0, 0), (self.simplefe_sink_c_0, 0))    
-        self.connect((self.simplefe_source_c_0, 0), (self.wxgui_scopesink2_0, 0))    
+        self.connect((self.analog_random_source_x_0, 0), (self.digital_psk_mod_0, 0))
+        self.connect((self.blocks_complex_to_float_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.simplefe_sink_f_0, 0))
+        self.connect((self.digital_psk_mod_0, 0), (self.blocks_complex_to_float_0, 0))
+
+    def closeEvent(self, event):
+        self.settings = Qt.QSettings("GNU Radio", "top_block")
+        self.settings.setValue("geometry", self.saveGeometry())
+        event.accept()
 
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.wxgui_scopesink2_0.set_sample_rate(self.samp_rate)
-        self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
 
 
 def main(top_block_cls=top_block, options=None):
 
+    qapp = Qt.QApplication(sys.argv)
+
     tb = top_block_cls()
-    tb.Start(True)
-    tb.Wait()
+    tb.start()
+    tb.show()
+
+    def quitting():
+        tb.stop()
+        tb.wait()
+    qapp.aboutToQuit.connect(quitting)
+    qapp.exec_()
 
 
 if __name__ == '__main__':
