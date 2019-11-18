@@ -12,7 +12,8 @@ else()
 find_package(FFTW REQUIRED)
 endif()
 
-add_library(Libdsp blkconv.cxx)
+SET(CMAKE_CXX_FLAGS  "-fPIC")
+add_library(Libdsp blkconv.cxx resample.cxx)
 
 target_include_directories(Libdsp  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(Libdsp  PUBLIC ${FFTW_INCLUDE_DIR})
