@@ -55,6 +55,8 @@ private:
     int             m_blksize;
     int             m_pos;
     float           m_mu;
+    float           m_last_remain;
+    bool            m_is_leftover;
     
 };
 

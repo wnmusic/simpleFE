@@ -27,7 +27,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "resample.h"
@@ -36,7 +36,7 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 
 resample::resample(float *taps, int n_taps, int upsample, int blksize)
     : m_n_phase(upsample), m_blksize(blksize)
-    , m_pos(0), m_mu(0.0f)
+    , m_pos(0), m_mu(0.0f), m_last_remain(0.0f), m_is_leftover(false)
 {
 
     
@@ -89,6 +89,7 @@ int resample::process(float* inout, int n_in, float rate)
     float *output = inout;
     int n_out = 0;
 
+    printf("enter process, %d\n", n_in);
     assert(n_in <= m_blksize);
     
     for (int i=0; i<n_in; i++){
@@ -108,24 +109,48 @@ int resample::process(float* inout, int n_in, float rate)
     }
 
     //get the output
+    if (m_is_leftover){
+        
+        float t = m_pos + m_mu;
+        int pos1 = (int)floorf(t);
+        int phase1 = pos1 % m_n_phase;
+        int n1 = pos1/m_n_phase;
+        
+        assert(n1 == 0);
+        
+        output[n_out++] = m_last_remain * (1.0f-m_mu) + m_mu*m_out[phase1][n1];            
+        m_is_leftover = false;
+    }
+        
     for (int i=0; i<n_in; i++)
     {
         float t = m_pos + m_mu + rate * m_n_phase;  /* t is based on the up sampled rate*/
-        int phase0, phase1, n;
+        int phase0, phase1, n0, n1, pos1;
         
         m_pos = (int)floorf(t);
         m_mu = t - m_pos;
+        pos1 = m_pos + 1;
 
         phase0 = m_pos % m_n_phase;
-        phase1 = (phase0 + 1) % m_n_phase;
-        n = m_pos / m_n_phase;
+        phase1 = pos1 % m_n_phase;
+        n0 = m_pos / m_n_phase;
+        n1 = pos1 / m_n_phase;
+        printf("%.2f, %d, %d, %d, %d, %.2f\n", t, n0, n1, phase0, phase1, m_mu);
 
-        if (n > m_blksize){
+        if (n0 >= n_in){
             break;
         }
-
-        output[n_out++] = m_out[phase0][n] * m_mu + (1.0f - m_mu)*m_out[phase1][n];
+        else if (n1 >= n_in){
+            m_is_leftover = true;
+            m_last_remain = m_out[phase0][n0];
+            break;
+        }
+        
+        output[n_out++] = m_out[phase0][n0] * (1.0f-m_mu) + m_mu*m_out[phase1][n1];
     }
+
+    //rewind back position
+    m_pos -= n_in * m_n_phase;
 
     return n_out;
 }
