@@ -89,7 +89,10 @@ int resample::process(float* inout, int n_in, float rate)
     float *output = inout;
     int n_out = 0;
 
-    printf("enter process, %d\n", n_in);
+    if (n_in > m_blksize || rate < 1.0/m_n_phase){
+        printf("input parameter is wrong, rate <= 1/upsample, n_in <= blksize\n");
+        return 0;
+    }
     assert(n_in <= m_blksize);
     
     for (int i=0; i<n_in; i++){
@@ -109,16 +112,10 @@ int resample::process(float* inout, int n_in, float rate)
     }
 
     //get the output
+    // beacuse rate > 1/upsample, there can only be a sample use the old
+    // remaining
     if (m_is_leftover){
-        
-        float t = m_pos + m_mu;
-        int pos1 = (int)floorf(t);
-        int phase1 = pos1 % m_n_phase;
-        int n1 = pos1/m_n_phase;
-        
-        assert(n1 == 0);
-        
-        output[n_out++] = m_last_remain * (1.0f-m_mu) + m_mu*m_out[phase1][n1];            
+        output[n_out++] = m_last_remain * (1.0f-m_mu) + m_mu*m_out[0][0];            
         m_is_leftover = false;
     }
         
@@ -145,11 +142,9 @@ int resample::process(float* inout, int n_in, float rate)
             m_last_remain = m_out[phase0][n0];
             break;
         }
-        
         output[n_out++] = m_out[phase0][n0] * (1.0f-m_mu) + m_mu*m_out[phase1][n1];
     }
 
-    //rewind back position
     m_pos -= n_in * m_n_phase;
 
     return n_out;
