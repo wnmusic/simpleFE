@@ -88,6 +88,7 @@ int resample::process(float* inout, int n_in, float rate)
     const float *input = inout;
     float *output = inout;
     int n_out = 0;
+    float t = m_pos + m_mu; //current time
 
     if (n_in > m_blksize || rate < 1.0/m_n_phase){
         printf("input parameter is wrong, rate <= 1/upsample, n_in <= blksize\n");
@@ -117,11 +118,11 @@ int resample::process(float* inout, int n_in, float rate)
     if (m_is_leftover){
         output[n_out++] = m_last_remain * (1.0f-m_mu) + m_mu*m_out[0][0];            
         m_is_leftover = false;
+        t += rate * m_n_phase;
     }
         
     for (int i=0; i<n_in; i++)
     {
-        float t = m_pos + m_mu + rate * m_n_phase;  /* t is based on the up sampled rate*/
         int phase0, phase1, n0, n1, pos1;
         
         m_pos = (int)floorf(t);
@@ -132,7 +133,6 @@ int resample::process(float* inout, int n_in, float rate)
         phase1 = pos1 % m_n_phase;
         n0 = m_pos / m_n_phase;
         n1 = pos1 / m_n_phase;
-        printf("%.2f, %d, %d, %d, %d, %.2f\n", t, n0, n1, phase0, phase1, m_mu);
 
         if (n0 >= n_in){
             break;
@@ -143,6 +143,7 @@ int resample::process(float* inout, int n_in, float rate)
             break;
         }
         output[n_out++] = m_out[phase0][n0] * (1.0f-m_mu) + m_mu*m_out[phase1][n1];
+        t += rate * m_n_phase;
     }
 
     m_pos -= n_in * m_n_phase;

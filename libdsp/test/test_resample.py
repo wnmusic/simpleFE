@@ -15,7 +15,6 @@ taps = [4.154052476224024e-06, 6.836163811385632e-05, 0.000311697949655354, 0.00
 
 x0 = np.sin(0.02*np.pi*np.arange(N), dtype=np.float32)
 interp = resample(taps, 4, B)
-plot.plot(x0)
 
 print os.getpid()
 raw_input()
@@ -23,11 +22,11 @@ raw_input()
 y = []
 for b in range(N/B):
     x = np.copy(x0[b*B:(b+1)*B])
-    Ny = interp.process(x, 1.33)
+    Ny = interp.process(x, 1.12)
     y += x[0:Ny].tolist()
                         
 
-print y
-plot.plot(y)
+plot.plot(np.abs(np.fft.fft(x0)))
+plot.plot(np.abs(np.fft.fft(y)))
 plot.show()
 
