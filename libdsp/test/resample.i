@@ -13,7 +13,8 @@ import_array();
 
 
 %apply (float *IN_ARRAY1, int DIM1) {(float *taps, int n_taps)};
-%apply (float *INPLACE_ARRAY1, int DIM1) {(float *inout, int n_in)};
+%apply (float *IN_ARRAY1, int DIM1) {(float *in, int n_in)};
+%apply (float *ARGOUT_ARRAY1, int DIM1) {(float *out, int out_len)};
 
 
 %include "resample.h"

@@ -21,9 +21,8 @@ raw_input()
 
 y = []
 for b in range(N/B):
-    x = np.copy(x0[b*B:(b+1)*B])
-    Ny = interp.process(x, 1.12)
-    y += x[0:Ny].tolist()
+    Ny,y0 = interp.process(x0[b*B:(b+1)*B],4*B, 0.77)
+    y += y0[0:Ny].tolist()
                         
 
 plot.plot(np.abs(np.fft.fft(x0)))

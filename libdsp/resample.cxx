@@ -82,11 +82,9 @@ resample::~resample()
 }
 
 
-int resample::process(float* inout, int n_in, float rate)
+int resample::process(float* in, int n_in, float* out, int out_len, float rate)
 {
     //fitler for each polyphase and store them;
-    const float *input = inout;
-    float *output = inout;
     int n_out = 0;
     float t = m_pos + m_mu; //current time
 
@@ -94,12 +92,15 @@ int resample::process(float* inout, int n_in, float rate)
         printf("input parameter is wrong, rate <= 1/upsample, n_in <= blksize\n");
         return 0;
     }
-    assert(n_in <= m_blksize);
-    
+    if (out_len < floorf(n_in*1.0f/rate)){
+        printf("output buffer is not large enough");
+        return 0;
+    }            
+
     for (int i=0; i<n_in; i++){
 
         for(int j=0; j<m_n_phase; j++){
-            float accu = m_phase_taps[j][0] * input[i];
+            float accu = m_phase_taps[j][0] * in[i];
             for(int n=1; n<m_phase_len; n++){
                 accu += m_phase_taps[j][n] * m_history[n-1];
             }
@@ -109,19 +110,19 @@ int resample::process(float* inout, int n_in, float rate)
         for (int n=m_phase_len-2 ; n>0; n--){
             m_history[n] = m_history[n-1];
         }
-        m_history[0] = input[i];
+        m_history[0] = in[i];
     }
 
     //get the output
     // beacuse rate > 1/upsample, there can only be a sample use the old
     // remaining
     if (m_is_leftover){
-        output[n_out++] = m_last_remain * (1.0f-m_mu) + m_mu*m_out[0][0];            
+        out[n_out++] = m_last_remain * (1.0f-m_mu) + m_mu*m_out[0][0];            
         m_is_leftover = false;
         t += rate * m_n_phase;
     }
         
-    for (int i=0; i<n_in; i++)
+    while(1)
     {
         int phase0, phase1, n0, n1, pos1;
         
@@ -134,7 +135,7 @@ int resample::process(float* inout, int n_in, float rate)
         n0 = m_pos / m_n_phase;
         n1 = pos1 / m_n_phase;
 
-        if (n0 >= n_in){
+        if (n0 >= n_in || n_out >= out_len){
             break;
         }
         else if (n1 >= n_in){
@@ -142,7 +143,7 @@ int resample::process(float* inout, int n_in, float rate)
             m_last_remain = m_out[phase0][n0];
             break;
         }
-        output[n_out++] = m_out[phase0][n0] * (1.0f-m_mu) + m_mu*m_out[phase1][n1];
+        out[n_out++] = m_out[phase0][n0] * (1.0f-m_mu) + m_mu*m_out[phase1][n1];
         t += rate * m_n_phase;
     }
 

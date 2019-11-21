@@ -44,7 +44,7 @@ public:
      * n_in should be less than blk_size
      * number of output samples generated is returned 
      */
-    int process(float* inout, int n_in, float rate);
+    int process(float* in, int n_in, float *out, int out_len, float rate);
 private:
     float          *m_history;
     int             m_phase_len;
