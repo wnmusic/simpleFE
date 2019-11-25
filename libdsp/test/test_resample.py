@@ -5,7 +5,7 @@ import sys
 import os
 
 sys.path.append('../build/test')
-from resample import *
+from pydsp import *
 
 N = 1024
 B = 128
