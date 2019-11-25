@@ -1,7 +1,8 @@
-%module resample
+%module pydsp
 %{
 #define SWIG_FILE_WITH_INIT
 #include "resample.h"
+#include "decimate.h"
 %}
 
 
@@ -18,3 +19,4 @@ import_array();
 
 
 %include "resample.h"
+%include "decimate.h"

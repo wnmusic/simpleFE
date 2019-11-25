@@ -13,7 +13,7 @@ find_package(FFTW REQUIRED)
 endif()
 
 SET(CMAKE_CXX_FLAGS  "-fPIC")
-add_library(Libdsp blkconv.cxx resample.cxx)
+add_library(Libdsp blkconv.cxx resample.cxx decimate.cxx)
 
 target_include_directories(Libdsp  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(Libdsp  PUBLIC ${FFTW_INCLUDE_DIR})
