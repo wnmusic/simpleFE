@@ -321,3 +321,36 @@ int usb_xfer_spi(sfe_usb *h, uint8_t *data, int n)
     }
     return s;
 }
+
+int usb_write_i2c(sfe_usb *h, uint8_t *data, uint8_t addr, int n)
+{
+    int status;
+    uint16_t addr16 = (addr << 8 ) | 0;
+    if (n > 8) return -1;
+    
+    status = libusb_control_transfer(h->dev,
+                                     LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+                                     VR_I2C, addr16, 0x00,
+                                     data, n, 1000);
+    if (status != 1){
+        fprintf(stderr, "libusb_control_transfe_usbr failed: %s\n", libusb_error_name(status));
+        return -1;
+    }
+    return 0;
+}
+
+int usb_read_i2c(sfe_usb *h, uint8_t *data, uint8_t addr, int n)
+{
+    int status;
+    uint16_t addr16 = (addr << 8 ) | 0;
+    if (n > 8) return -1;
+    status = libusb_control_transfer(h->dev,
+                                     LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+                                     VR_I2C, addr16, 0x00,
+                                     data, n, 1000);
+    if (status != 1){
+        fprintf(stderr, "libusb_control_transfe_usbr failed: %s\n", libusb_error_name(status));
+        return -1;
+    }
+    return 0;
+}

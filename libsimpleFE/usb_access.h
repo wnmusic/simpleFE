@@ -68,7 +68,8 @@ void get_fpga_status(sfe_usb* h,
                      );
 void set_isopkts(sfe_usb *h, unsigned n);
 void external_gpio_set(sfe_usb* h, int gpio, int value);
-
+int usb_read_i2c(sfe_usb *h, uint8_t *data, uint8_t addr, int n);
+int usb_write_i2c(sfe_usb *h, uint8_t *data, uint8_t addr, int n);
 
 
 #define GPIO_LED    (2)
@@ -77,6 +78,7 @@ void external_gpio_set(sfe_usb* h, int gpio, int value);
 
 #define VR_GPIO 0xaa
 #define VR_RATE 0xab
+#define VR_I2C  0xac
 
 #define MAX_VR_BYTES    4
 #define VR_GPIO_BYTES   1

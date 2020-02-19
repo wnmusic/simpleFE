@@ -883,3 +883,29 @@ int sfe_spi_transfer(sfe *h, unsigned char *data, unsigned len)
     usb_xfer_spi(h->usb, data, len);
 }
 
+
+void sfe_auxdac_set(sfe* h, int ch, unsigned val)
+{
+    unsigned char oct0 = (val & 0xF0)>>4;
+    unsigned char oct1 = val & 0x0F;
+    unsigned char dac[2];
+    
+    ch = ch & 0x03;
+    
+    dac[0] = (ch<<6) | (0x01<<4) | oct0;
+    dac[1] = oct1 << 4;
+    set_gpio(h->usb, AUXDAC_CS, 0);
+    usb_xfer_spi(h->usb, &dac[0], 2);
+    set_gpio(h->usb, AUXDAC_CS, 1);
+
+}
+
+void sfe_i2c_write(sfe* h, unsigned char addr,  char *data, unsigned len)
+{
+    usb_write_i2c(h->usb, data, addr, len);
+}
+
+void sfe_i2c_read(sfe* h, unsigned char addr, char *data, unsigned len)
+{
+    usb_read_i2c(h->usb, data, addr, len);
+}

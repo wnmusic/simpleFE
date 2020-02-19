@@ -69,6 +69,10 @@ void sfe_reset_board(sfe* h);
 
 void sfe_external_gpio_set(sfe* h, int gpio, int val);
 int sfe_spi_transfer(sfe *h, unsigned char *data, unsigned len);
+void sfe_auxdac_set(sfe* h, int ch, unsigned val);
+void sfe_i2c_read(sfe* h, unsigned char addr, char *data, unsigned len);
+    void sfe_i2c_write(sfe* h, unsigned char addr,  char *data, unsigned len);
+
 
 
 #ifdef __cplusplus
