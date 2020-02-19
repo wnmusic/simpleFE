@@ -65,15 +65,10 @@ void sfe_stop_tx(sfe *h);
 void sfe_stop_rx(sfe *h);
 
 unsigned get_real_sample_rate(sfe* h);
-
 void sfe_reset_board(sfe* h);
 
-    void sfe_external_gpio_set(sfe* h, int gpio, int val);
-int sfe_spi_transfer(int chip,
-                     unsigned char *data,
-                     unsigned len
-                     );
-
+void sfe_external_gpio_set(sfe* h, int gpio, int val);
+int sfe_spi_transfer(sfe *h, unsigned char *data, unsigned len);
 
 
 #ifdef __cplusplus

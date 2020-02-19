@@ -877,3 +877,9 @@ void sfe_external_gpio_set(sfe* h, int gpio, int val)
 {
     external_gpio_set(h->usb, gpio, val);
 }
+
+int sfe_spi_transfer(sfe *h, unsigned char *data, unsigned len)
+{
+    usb_xfer_spi(h->usb, data, len);
+}
+
