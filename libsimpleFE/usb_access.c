@@ -219,6 +219,19 @@ void get_fpga_status(sfe_usb* h,
     }
 }
 
+void external_gpio_set(sfe_usb* h, int gpio, int value)
+{
+    uint8_t data[3];
+    
+    data[0] = (gpio>7 ? 0x06 : 0x07) << 5; //WR op
+    data[1] = !!value;
+    data[2] = 0;
+    
+    set_gpio(h, FPGA_CS, 0);
+    usb_xfer_spi(h, data, 3);
+    set_gpio(h, FPGA_CS, 1);
+}
+
 
 void set_isopkts(sfe_usb *h, unsigned n)
 {

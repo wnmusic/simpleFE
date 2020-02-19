@@ -67,6 +67,8 @@ void get_fpga_status(sfe_usb* h,
                      int* sys_en
                      );
 void set_isopkts(sfe_usb *h, unsigned n);
+void external_gpio_set(sfe_usb* h, int gpio, int value);
+
 
 
 #define GPIO_LED    (2)

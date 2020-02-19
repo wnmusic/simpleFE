@@ -871,3 +871,9 @@ unsigned get_real_sample_rate(sfe* h)
 {
     return h->actual_rate;
 }
+
+
+void sfe_external_gpio_set(sfe* h, int gpio, int val)
+{
+    external_gpio_set(h->usb, gpio, val);
+}
