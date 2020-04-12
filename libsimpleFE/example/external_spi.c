@@ -29,54 +29,24 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef SIMPLE_FE_H_
-#define SIMPLE_FE_H_
 
-#ifdef __cplusplus
-extern "C"{
-#endif
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "simpleFE.h"
+
+
+int main(int argc, char* argv[])
+{
+    sfe *h = sfe_init();
+    uint8_t data[4] = {0xA5, 0x5a, 0xc4, 0x4c};
+
+    //strobe cs linex
+    sfe_external_gpio_set(h, 0, 0);
+    sfe_spi_transfer(h, &data[0], 1);
+    sfe_external_gpio_set(h, 0, 1);
     
-#define SIMPLE_FE_NUM_SAMPLE_RATES    128
-
-typedef struct sfe_s sfe;
-typedef int (sfe_callback)(unsigned char* buffer, int length, void* userdata);
-sfe* sfe_init();
-void sfe_close(sfe* h);
-/* pr should at least hold SIMPLE_FE_NUM_SAMPLE_RATES integers */
-void sfe_query_sample_rates(unsigned *pr);
-
-unsigned sfe_get_num_data_per_transfer(sfe *h);
-/* these are threaded functions */
-int sfe_set_sample_rate(sfe *h, unsigned samplerate);
-void sfe_tx_enable(sfe *h, int tx_i, int tx_q);
-void sfe_rx_enable(sfe *h, int rx_i, int rx_q);
-    
-int  sfe_tx_start(sfe *h,
-                  sfe_callback* tx_cb,
-                  void* cbdata
-                  );
-
-int sfe_rx_start(sfe *h,
-                 sfe_callback* rx_cb,
-                 void* cbdata
-                 );
-    
-void sfe_stop_tx(sfe *h);
-void sfe_stop_rx(sfe *h);
-
-unsigned get_real_sample_rate(sfe* h);
-void sfe_reset_board(sfe* h);
-
-void sfe_external_gpio_set(sfe* h, int gpio, int val);
-int sfe_spi_transfer(sfe *h, unsigned char *data, unsigned len);
-void sfe_auxdac_set(sfe* h, int ch, unsigned val);
-void sfe_i2c_read(sfe* h, unsigned char addr, char *data, unsigned len);
-void sfe_i2c_write(sfe* h, unsigned char addr,  char *data, unsigned len);
-
-
-
-#ifdef __cplusplus
+    sfe_close(h);
 }
-#endif
-
-#endif

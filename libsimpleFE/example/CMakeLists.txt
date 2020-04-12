@@ -22,3 +22,5 @@ target_link_libraries(loopback LINK_PUBLIC simpleFE)
 add_executable(fw_load fw_load.c)
 target_link_libraries(fw_load LINK_PUBLIC simpleFE)
 
+add_executable(external_spi external_spi.c)
+target_link_libraries(external_spi LINK_PUBLIC simpleFE)
