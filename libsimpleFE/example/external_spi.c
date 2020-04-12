@@ -41,11 +41,21 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 int main(int argc, char* argv[])
 {
     sfe *h = sfe_init();
-    uint8_t data[4] = {0xA5, 0x5a, 0xc4, 0x4c};
+    uint8_t data0[3] = {0x00, 0x9c, 0x12};
+    uint8_t data1[3] = {0x4f, 0xf1, 0x00};
+    uint8_t data2[3] = {0x30, 0x00, 0xc9};
 
     //strobe cs linex
     sfe_external_gpio_set(h, 0, 0);
-    sfe_spi_transfer(h, &data[0], 1);
+    sfe_spi_transfer(h, &data0[0], 3);
+    sfe_external_gpio_set(h, 0, 1);
+
+    sfe_external_gpio_set(h, 0, 0);
+    sfe_spi_transfer(h, &data1[0], 3);
+    sfe_external_gpio_set(h, 0, 1);
+
+    sfe_external_gpio_set(h, 0, 0);
+    sfe_spi_transfer(h, &data2[0], 3);
     sfe_external_gpio_set(h, 0, 1);
     
     sfe_close(h);
