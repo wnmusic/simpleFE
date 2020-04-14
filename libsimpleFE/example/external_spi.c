@@ -47,15 +47,15 @@ int main(int argc, char* argv[])
 
     //strobe cs linex
     sfe_external_gpio_set(h, 0, 0);
-    sfe_spi_transfer(h, &data0[0], 3);
+    sfe_spi_transfer(h, data2, 3);
     sfe_external_gpio_set(h, 0, 1);
 
     sfe_external_gpio_set(h, 0, 0);
-    sfe_spi_transfer(h, &data1[0], 3);
+    sfe_spi_transfer(h, data1, 3);
     sfe_external_gpio_set(h, 0, 1);
 
     sfe_external_gpio_set(h, 0, 0);
-    sfe_spi_transfer(h, &data2[0], 3);
+    sfe_spi_transfer(h, data0, 3);
     sfe_external_gpio_set(h, 0, 1);
     
     sfe_close(h);

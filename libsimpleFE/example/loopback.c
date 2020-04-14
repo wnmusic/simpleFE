@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 {
     sfe *h_tx = sfe_init();
     
-    unsigned sample_rate =5000000;
+    unsigned sample_rate =7500000;
     if(!h_tx){
         fprintf(stderr, "Cannot open tx simpleFE device\n");
         return 1;

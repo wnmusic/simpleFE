@@ -41,6 +41,7 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "libusb.h"
 
 #define FPGA_CLK   30000000
+#define FPGA_I2C_ADDR  (0x02)
 #ifdef __linux__
 #define NUM_PKTS_PER_XFER        120
 #define NUM_TRANSFERS            32
@@ -102,6 +103,8 @@ struct sfe_s{
     int rx_exit_request;
     
 
+    unsigned char ext_gpio[2];
+    
     int status;    
 };
 
@@ -861,9 +864,28 @@ void sfe_query_sample_rates(unsigned *pr)
 
 void sfe_reset_board(sfe* h)
 {
+	uint8_t cfg[2];
     // Reset FPGA
     set_gpio(h->usb, FPGA_RST, 0);
     set_gpio(h->usb, FPGA_RST, 1);
+
+    //enable I2C
+    cfg[0] = (1 << 7) | (0x02<<5); //reg 2
+    cfg[1] =  0x80;
+    set_gpio(h->usb, FPGA_CS, 0);
+    usb_xfer_spi(h->usb, &cfg[0], 2);
+    set_gpio(h->usb, FPGA_CS, 1);
+
+    //enable all GPIO to be high
+    cfg[0] = 0x00;
+    cfg[1] = 0xff;
+    usb_write_i2c(h->usb, cfg, FPGA_I2C_ADDR, 2);
+
+    cfg[0] = 0x01;
+    cfg[1] = 0xff;
+    usb_write_i2c(h->usb, cfg, FPGA_I2C_ADDR, 2);
+
+    h->ext_gpio[0] = h->ext_gpio[1] = 0xff;
 }
 
 
@@ -875,8 +897,20 @@ unsigned get_real_sample_rate(sfe* h)
 
 void sfe_external_gpio_set(sfe* h, int gpio, int val)
 {
-    external_gpio_set(h->usb, gpio, val);
-}
+    uint8_t reg[2];
+    int i = gpio > 7;
+    
+    if (i) {
+        gpio -= 8;
+    }
+    h->ext_gpio[i] &= ~(1 << gpio);
+    h->ext_gpio[i] |= ((!!val) << gpio);
+    
+    reg[0] = i;
+    reg[1] = h->ext_gpio[i];
+    
+    usb_write_i2c(h->usb, reg, FPGA_I2C_ADDR, 2);
+ }
 
 int sfe_spi_transfer(sfe *h, unsigned char *data, unsigned len)
 {
