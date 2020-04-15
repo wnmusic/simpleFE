@@ -37,12 +37,27 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include "simpleFE.h"
 
+#ifdef _MSC_VER
+#include <windows.h>
+void usleep(DWORD waitTime) {
+	LARGE_INTEGER perfCnt, start, now;
 
+	QueryPerformanceFrequency(&perfCnt);
+	QueryPerformanceCounter(&start);
+
+	do {
+		QueryPerformanceCounter((LARGE_INTEGER*)&now);
+	} while ((now.QuadPart - start.QuadPart) / (float)(perfCnt.QuadPart) * 1000 * 1000 < waitTime);
+}
+
+#else
+#include <unistd.h>
+#endif
 int main(int argc, char* argv[])
 {
     sfe *h = sfe_init();
-    uint8_t data0[3] = {0x00, 0x9c, 0x12};
-    uint8_t data1[3] = {0x4f, 0xf1, 0x00};
+    uint8_t data0[3] = {0x01, 0x38, 0x12};
+    uint8_t data1[3] = {0x0f, 0xf1, 0x20};
     uint8_t data2[3] = {0x30, 0x00, 0xc9};
 
     //strobe cs linex
@@ -53,6 +68,8 @@ int main(int argc, char* argv[])
     sfe_external_gpio_set(h, 0, 0);
     sfe_spi_transfer(h, data1, 3);
     sfe_external_gpio_set(h, 0, 1);
+
+	usleep(10000);
 
     sfe_external_gpio_set(h, 0, 0);
     sfe_spi_transfer(h, data0, 3);
