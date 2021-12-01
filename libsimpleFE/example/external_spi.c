@@ -56,9 +56,33 @@ void usleep(DWORD waitTime) {
 int main(int argc, char* argv[])
 {
     sfe *h = sfe_init();
-    uint8_t data0[3] = {0x01, 0x38, 0x12};
-    uint8_t data1[3] = {0x0f, 0xf1, 0x20};
-    uint8_t data2[3] = {0x30, 0x00, 0xc9};
+    uint8_t data0[3] = {0x00, 0xFA, 0x02}; //N 
+    uint8_t data1[3] = {0x0f, 0xf9, 0x20}; //C 
+    uint8_t data2[3] = {0x30, 0x00, 0xc9}; //R
+
+    uint16_t A = 2;
+    uint16_t B = 200;
+    uint16_t R = 40;
+
+    uint32_t Nval = ((B & 0x1FFF)<<8) | ((A & 0x1F) << 2) | 0x02;
+    data0[0] = (Nval & 0x00FF0000)>>16;
+    data0[1] = (Nval & 0x0000FF00)>>8;
+    data0[2] = (Nval & 0x000000FF);
+    printf("N: 0x%02x, 0x%02x, 0x%02x\n", data0[0], data0[1], data0[2]);
+
+    uint32_t Rval = (0x03 << 20) | ((R & 0x3FFF) << 2) | 0x01;
+    data2[0] = (Rval & 0x00FF0000)>>16;
+    data2[1] = (Rval & 0x0000FF00)>>8;
+    data2[2] = (Rval & 0x000000FF);
+    printf("R: 0x%02x, 0x%02x, 0x%02x\n", data2[0], data2[1], data2[2]);
+
+    uint32_t Cval = 0x0ff920;
+    Cval = (Cval & ~(0x03<<12)) | (0x01 <<12); //output power settings
+    Cval = (Cval & ~(0x3F<<14)) | (0x1B <<14); //1.25mA CP current
+    data1[0] = (Cval & 0x00FF0000)>>16;
+    data1[1] = (Cval & 0x0000FF00)>>8;
+    data1[2] = (Cval & 0x000000FF);
+    printf("C: 0x%02x, 0x%02x, 0x%02x\n", data1[0], data1[1], data1[2]);
 
     //strobe cs linex
     sfe_external_gpio_set(h, 0, 0);
@@ -69,7 +93,7 @@ int main(int argc, char* argv[])
     sfe_spi_transfer(h, data1, 3);
     sfe_external_gpio_set(h, 0, 1);
 
-	usleep(10000);
+    usleep(20000);
 
     sfe_external_gpio_set(h, 0, 0);
     sfe_spi_transfer(h, data0, 3);

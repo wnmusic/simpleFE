@@ -24,3 +24,7 @@ target_link_libraries(fw_load LINK_PUBLIC simpleFE)
 
 add_executable(external_spi external_spi.c)
 target_link_libraries(external_spi LINK_PUBLIC simpleFE)
+
+
+add_executable(setfreq setfreq.c)
+target_link_libraries(setfreq LINK_PUBLIC simpleFE m)

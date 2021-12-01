@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.0)   
 project(simpleFE_Examples)
 
+set ( CMAKE_MODULE_PATH
+  ${PROJECT_SOURCE_DIR}/cmake
+)
+
 set(SIMPLEFE_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../libsimpleFE)
 set(LIBDSP_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../libdsp)
 

@@ -62,13 +62,14 @@ int main(int argc, char* argv[])
     int i;
     unsigned status;
     unsigned char dac[2];
+
+            
     for(i=0; i<20; i++){
         set_gpio(h, GPIO_LED, i&0x01);
         usleep(50*1000);
     }
 
     printf("clkrate on board: %d\n", get_clkrate(h));
-
     {
         unsigned cdiv;
         int tx_i, tx_q, rx_i, rx_q, sys_en;

@@ -192,7 +192,7 @@ void get_fpga_status(sfe_usb* h,
                      )
 {
     uint8_t data[3];
-    data[0] = 0x03 << 5;
+    data[0] = 0x02 << 5;
     set_gpio(h, FPGA_CS, 0);
     usb_xfer_spi(h, data, 3);
     set_gpio(h, FPGA_CS, 1);
@@ -222,10 +222,28 @@ void get_fpga_status(sfe_usb* h,
 void external_gpio_set(sfe_usb* h, int gpio, int value)
 {
     uint8_t data[3];
+    uint16_t val = (!!value) << gpio;
     
-    data[0] = (gpio>7 ? 0x06 : 0x07) << 5; //WR op
-    data[1] = !!value;
-    data[2] = 0;
+    data[0] = (1<<7) | (0x02<< 5); //WR op
+    data[1] = (val & 0xFF00)>>8;
+    data[2] = val & 0xFF;
+    
+    set_gpio(h, FPGA_CS, 0);
+    usb_xfer_spi(h, data, 3);
+    set_gpio(h, FPGA_CS, 1);
+}
+
+
+void set_pll_div(sfe_usb* h, unsigned short N, unsigned short A)
+{
+    uint8_t data[3];
+    uint8_t n_div = (N/2)&0xFF;
+    uint8_t a_div = (A/2)&0xFF;
+    
+    
+    data[0] = (1<<7) | (0x03 << 5); //WR op
+    data[1] = a_div;
+    data[2] = n_div;
     
     set_gpio(h, FPGA_CS, 0);
     usb_xfer_spi(h, data, 3);

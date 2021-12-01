@@ -70,7 +70,7 @@ void set_isopkts(sfe_usb *h, unsigned n);
 void external_gpio_set(sfe_usb* h, int gpio, int value);
 int usb_read_i2c(sfe_usb *h, uint8_t *data, uint8_t addr, int n);
 int usb_write_i2c(sfe_usb *h, uint8_t *data, uint8_t addr, int n);
-
+void set_pll_div(sfe_usb* h, unsigned short N, unsigned short A);
 
 #define GPIO_LED    (2)
 #define FPGA_RST    (5)
